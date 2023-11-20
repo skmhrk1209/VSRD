@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import os
 import re
 import json
@@ -50,7 +45,7 @@ def main(args):
     if config.launcher == "slurm":
         # NOTE: we must specify `MASTER_ADDR` and `MASTER_PORT` by the environment variables
         vsrd.distributed.init_process_group(backend=config.distributed.backend, port=config.port)
-    if config.launcher == "torch":
+    if config.launcher == "torchrun":
         torch.distributed.init_process_group(backend=config.distributed.backend)
 
     device_id = vsrd.distributed.get_device_id(config.distributed.num_devices_per_process, args.device_id)
@@ -1142,7 +1137,7 @@ if __name__ == "__main__":
         "VSRD: Volumetric Silhouette Rendering"
         " for Monocular 3D Object Detection without 3D Supervision"
     )
-    parser.add_argument("--launcher", type=str, choices=["slurm", "torch"], default="slurm")
+    parser.add_argument("--launcher", type=str, choices=["slurm", "torchrun"], default="slurm")
     parser.add_argument("--port", type=int, default=1209)
     parser.add_argument("--device_id", type=int, default=0)
     parser.add_argument("--config", type=str)

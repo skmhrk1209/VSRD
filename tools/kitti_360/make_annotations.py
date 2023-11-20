@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import os
 import json
 import glob
@@ -74,7 +69,6 @@ def make_annotations(sequence, root_dirname):
         obj_box_3d = np.array(list(map(float, data))).reshape(8, 3)
 
         # NOTE: convert from the KITTI-360 "annotation" format to the KITTI-360 "evaluation" format
-        # NOTE: the KITTI-360 "annotation" format is different from the KITTI-360 "evaluation" format
         # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/prepare_train_val_windows.py#L133
         # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/evalDetection.py#L552
         obj_box_3d = obj_box_3d[[0, 2, 7, 5, 1, 3, 6, 4], ...]
@@ -86,7 +80,7 @@ def make_annotations(sequence, root_dirname):
         wld_boxes_3d[frame_index][instance_id] = wld_box_3d
 
     # ================================================================
-    # image & segmentation mask
+    # image & instance mask
 
     image_filenames = sorted(glob.glob(os.path.join(root_dirname, "data_2d_raw", sequence, "**", "*.png"), recursive=True))
 

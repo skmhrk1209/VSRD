@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import os
 import json
 import glob
@@ -14,6 +9,7 @@ import tqdm
 import torch
 import torchvision
 import cv2 as cv
+import numpy as np
 import pycocotools.mask
 
 import vsrd
@@ -41,16 +37,28 @@ def visualize_annotations(sequence, root_dirname, out_dirname, class_names, fram
         with open(annotation_filename) as file:
             annotation = json.load(file)
 
-        masks = torch.cat([
-            torch.as_tensor(list(map(pycocotools.mask.decode, masks.values())), dtype=torch.float)
+        instance_ids = {
+            class_name: list(masks.keys())
             for class_name, masks in annotation["masks"].items()
             if class_name in class_names
+        }
+
+        if not instance_ids: continue
+
+        masks = torch.cat([
+            torch.as_tensor(np.stack([
+                pycocotools.mask.decode(annotation["masks"][class_name][instance_id])
+                for instance_id in instance_ids
+            ]), dtype=torch.float)
+            for class_name, instance_ids in instance_ids.items()
         ], dim=0)
 
         boxes_3d = torch.cat([
-            torch.as_tensor(list(boxes_3d.values()), dtype=torch.float)
-            for class_name, boxes_3d in annotation["boxes_3d"].items()
-            if class_name in class_names
+            torch.as_tensor([
+                annotation["boxes_3d"][class_name].get(instance_id, [[np.nan] * 3] * 8)
+                for instance_id in instance_ids
+            ], dtype=torch.float)
+            for class_name, instance_ids in instance_ids.items()
         ], dim=0)
 
         intrinsic_matrix = torch.as_tensor(annotation["intrinsic_matrix"])
@@ -108,7 +116,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="VSRD: Annotation Visualizer for KITTI-360")
     parser.add_argument("--root_dirname", type=str, default="datasets/KITTI-360")
-    parser.add_argument("--out_dirname", type=str, default="videos/kitti_360/annotations")
+    parser.add_argument("--out_dirname", type=str, default="images/kitti_360/annotations")
     parser.add_argument("--class_names", type=str, nargs="+", default=["car"])
     parser.add_argument("--frame_rate", type=int, default=10)
     parser.add_argument("--num_workers", type=int, default=9)

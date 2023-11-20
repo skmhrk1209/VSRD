@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import os
 import json
 import glob
@@ -49,7 +44,6 @@ def draw_boxes_3d(image, boxes_3d, face_indices, intrinsic_matrix, colors, *args
     image = np.ascontiguousarray(image)
 
     # NOTE: use the KITTI-360 "evaluation" format instaed of the KITTI-360 "annotation" format
-    # NOTE: the KITTI-360 "annotation" format is different from the KITTI-360 "evaluation" format
     # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/prepare_train_val_windows.py#L133
     # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/evalDetection.py#L552
 
@@ -96,12 +90,6 @@ def visualize_predictions(sequence, root_dirname, ckpt_dirname, out_dirname, cla
         boxes_3d = torch.cat([
             torch.as_tensor(boxes_3d, dtype=torch.float)
             for class_name, boxes_3d in prediction["boxes_3d"].items()
-            if class_name in class_names
-        ], dim=0)
-
-        boxes_2d = torch.cat([
-            torch.as_tensor(boxes_2d, dtype=torch.float)
-            for class_name, boxes_2d in prediction["boxes_2d"].items()
             if class_name in class_names
         ], dim=0)
 
@@ -186,7 +174,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="VSRD: Prediction Visualizer for KITTI-360")
     parser.add_argument("--root_dirname", type=str, default="datasets/KITTI-360")
     parser.add_argument("--ckpt_dirname", type=str, default="ckpts/kitti_360/vsrd")
-    parser.add_argument("--out_dirname", type=str, default="videos/kitti_360/predictions")
+    parser.add_argument("--out_dirname", type=str, default="images/kitti_360/predictions")
     parser.add_argument("--class_names", type=str, nargs="+", default=["car"])
     parser.add_argument("--frame_rate", type=int, default=10)
     parser.add_argument("--num_workers", type=int, default=9)

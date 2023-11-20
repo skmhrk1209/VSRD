@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import os
 import json
 import glob
@@ -14,6 +9,7 @@ import tqdm
 import torch
 import torch.nn as nn
 import torchvision
+import numpy as np
 import scipy as sp
 import pycocotools.mask
 
@@ -27,9 +23,15 @@ LINE_INDICES = [
 ]
 
 
-def make_predictions(sequence, root_dirname, ckpt_dirname, ckpt_filename, split_filename, class_names):
-
-    group_filename = os.path.join(root_dirname, "filenames", split_filename, sequence, "grouped_image_filenames.txt")
+def make_predictions(
+    sequence,
+    root_dirname,
+    ckpt_dirname,
+    ckpt_filename,
+    split_dirname,
+    class_names,
+):
+    group_filename = os.path.join(root_dirname, "filenames", split_dirname, sequence, "grouped_image_filenames.txt")
 
     with open(group_filename) as file:
         grouped_image_filenames = {
@@ -37,7 +39,7 @@ def make_predictions(sequence, root_dirname, ckpt_dirname, ckpt_filename, split_
             for line in map(str.strip, file)
         }
 
-    sample_filename = os.path.join(root_dirname, "filenames", split_filename, sequence, "sampled_image_filenames.txt")
+    sample_filename = os.path.join(root_dirname, "filenames", split_dirname, sequence, "sampled_image_filenames.txt")
 
     with open(sample_filename) as file:
         sampled_image_filenames = {
@@ -59,7 +61,7 @@ def make_predictions(sequence, root_dirname, ckpt_dirname, ckpt_filename, split_
         target_checkpoint = torch.load(target_ckpt_filename, map_location="cpu")
 
         model = vsrd.models.BoxParameters3D(*torch.tensor(target_checkpoint["models"]["detector"]["embeddings"]).shape)
-        model.load_state_dict(target_checkpoint["models"]["detector"], strict=False)
+        model.load_state_dict(target_checkpoint["models"]["detector"])
 
         world_boxes_3d, = model()["boxes_3d"]
         world_boxes_3d = nn.functional.pad(world_boxes_3d, (0, 1), mode="constant", value=1.0)
@@ -119,7 +121,7 @@ def make_predictions(sequence, root_dirname, ckpt_dirname, ckpt_filename, split_
             ], dim=0)
 
             source_gt_masks = torch.cat([
-                torch.as_tensor(list(map(pycocotools.mask.decode, masks.values())), dtype=torch.float)
+                torch.as_tensor(np.stack(list(map(pycocotools.mask.decode, masks.values()))), dtype=torch.float)
                 for class_name, masks in source_annotation["masks"].items()
                 if class_name in class_names
             ], dim=0)
@@ -203,7 +205,7 @@ def main(args):
                 root_dirname=args.root_dirname,
                 ckpt_dirname=args.ckpt_dirname,
                 ckpt_filename=args.ckpt_filename,
-                split_filename=args.split_filename,
+                split_dirname=args.split_dirname,
                 class_names=args.class_names,
             ), sequences):
 
@@ -216,7 +218,7 @@ if __name__ == "__main__":
     parser.add_argument("--root_dirname", type=str, default="datasets/KITTI-360")
     parser.add_argument("--ckpt_dirname", type=str, default="ckpts/kitti_360/vsrd")
     parser.add_argument("--ckpt_filename", type=str, default="step_2999.pt")
-    parser.add_argument("--split_filename", type=str, default="R50-N16-M128-B16")
+    parser.add_argument("--split_dirname", type=str, default="R50-N16-M128-B16")
     parser.add_argument("--class_names", type=str, nargs="+", default=["car"])
     parser.add_argument("--num_workers", type=int, default=9)
     args = parser.parse_args()

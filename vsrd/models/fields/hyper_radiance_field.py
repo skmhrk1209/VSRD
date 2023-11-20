@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import operator
 
 import torch
@@ -70,8 +65,8 @@ class HyperRadianceField(nn.Module):
                 features = nn.functional.layer_norm(features, [in_channels])
                 features = nn.functional.gelu(features)
             features = torch.einsum(
-                "...mn,...n->...m", 
-                weights.unflatten(-1, (out_channels, in_channels + 1)), 
+                "...mn,...n->...m",
+                weights.unflatten(-1, (out_channels, in_channels + 1)),
                 nn.functional.pad(features, (0, 1), mode="constant", value=1.0),
             )
         radiances = features
