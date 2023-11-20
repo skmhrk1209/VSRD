@@ -35,6 +35,8 @@ python tools/datasets/kitti_360/sample_annotations.py
 
 ## Multi-View 3D Auto-Labeling
 
+Our multi-view 3D auto labeling optimizes the bounding boxes and signed distance field (SDF) in each scene. The data is split and distributed to each process, but unlike general distributed training, the gradients are not averaged between processes.
+
 - [Slurm Workload Manager](https://ja.wikipedia.org/wiki/Slurm_Workload_Manager)
 
 ```bash
