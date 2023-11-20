@@ -27,10 +27,10 @@ pip install -e .
 python tools/datasets/kitti_360/make_annotations.py
 ```
 
-3. (optional) Check whether the 3D bounding boxes are correctly transformed.
+3. For each target view, sample source frames for multi-view 3D auto-labeling.
 
 ```bash
-python tools/datasets/kitti_360/visualize_annotations.py
+python tools/datasets/kitti_360/sample_annotations.py
 ```
 
 ## Multi-View 3D Auto-Labeling
