@@ -19,7 +19,7 @@ pip install -e .
 
 ## Data Preparation
 
-1. Download [the KITTI-360 dataset](https://www.cvlibs.net/datasets/kitti-360/download.php).
+1. Download the [KITTI-360](https://www.cvlibs.net/datasets/kitti-360/download.php) dataset.
 
 2. Transform the 3D bounding boxes from the world coordinate system to the camera coordinate system.
 

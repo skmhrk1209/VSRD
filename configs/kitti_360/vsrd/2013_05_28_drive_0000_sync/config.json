@@ -1,11 +1,239 @@
 {
+    "cudnn": {
+        "benchmark": false,
+        "deterministic": false
+    },
     "datasets": {
         "train": {
+            "function": "vsrd.datasets.KITTI360Dataset",
             "kwargs": {
+                "class_names": [
+                    "car"
+                ],
                 "filenames": [
                     "datasets/KITTI-360/filenames/R50-N16-M128-B16/2013_05_28_drive_0000_sync/sampled_image_filenames.txt"
+                ],
+                "num_source_frames": 16,
+                "source_transforms": [
+                    {
+                        "function": "vsrd.transforms.Resizer",
+                        "kwargs": {
+                            "image_size": [
+                                376,
+                                1408
+                            ]
+                        }
+                    },
+                    {
+                        "function": "vsrd.transforms.MaskAreaFilter",
+                        "kwargs": {
+                            "min_mask_area": 1
+                        }
+                    },
+                    {
+                        "function": "vsrd.transforms.MaskRefiner"
+                    },
+                    {
+                        "function": "vsrd.transforms.MaskAreaFilter",
+                        "kwargs": {
+                            "min_mask_area": 1
+                        }
+                    },
+                    {
+                        "function": "vsrd.transforms.BoxGenerator"
+                    },
+                    {
+                        "function": "vsrd.transforms.BoxSizeFilter",
+                        "kwargs": {
+                            "min_box_size": 1
+                        }
+                    },
+                    {
+                        "function": "vsrd.transforms.SoftRasterizer"
+                    }
+                ],
+                "target_transforms": [
+                    {
+                        "function": "vsrd.transforms.Resizer",
+                        "kwargs": {
+                            "image_size": [
+                                376,
+                                1408
+                            ]
+                        }
+                    },
+                    {
+                        "function": "vsrd.transforms.MaskAreaFilter",
+                        "kwargs": {
+                            "min_mask_area": 1
+                        }
+                    },
+                    {
+                        "function": "vsrd.transforms.MaskRefiner"
+                    },
+                    {
+                        "function": "vsrd.transforms.MaskAreaFilter",
+                        "kwargs": {
+                            "min_mask_area": 128
+                        }
+                    },
+                    {
+                        "function": "vsrd.transforms.BoxGenerator"
+                    },
+                    {
+                        "function": "vsrd.transforms.BoxSizeFilter",
+                        "kwargs": {
+                            "min_box_size": 16
+                        }
+                    },
+                    {
+                        "function": "vsrd.transforms.SoftRasterizer"
+                    }
                 ]
             }
         }
+    },
+    "distributed": {
+        "backend": "nccl",
+        "num_devices_per_process": 1
+    },
+    "loaders": {
+        "train": {
+            "function": "vsrd.distributed.DistributedDataLoader",
+            "kwargs": {
+                "batch_size": 1,
+                "collate_fn": "eval:vsrd.utils.collate_nested_dicts",
+                "dataset": "eval:datasets.train",
+                "drop_last": true,
+                "num_workers": 0,
+                "persistent_workers": false,
+                "pin_memory": false
+            }
+        }
+    },
+    "logging": {
+        "ckpt_intervals": 500,
+        "eval_intervals": 1,
+        "image_intervals": 500,
+        "scalar_intervals": 50
+    },
+    "loss_weights": {
+        "eikonal_loss": 0.01,
+        "iou_projection_loss": 0.1,
+        "l1_projection_loss": 1.0,
+        "photometric_loss": 0.0,
+        "radiance_loss": 0.0,
+        "silhouette_loss": 1.0
+    },
+    "models": {
+        "detector": {
+            "function": "vsrd.models.BoxParameters3D",
+            "kwargs": {
+                "batch_size": 1,
+                "num_features": 256,
+                "num_instances": "eval:num_instances"
+            }
+        },
+        "hyper_distance_field": {
+            "function": "vsrd.models.HyperDistanceField",
+            "kwargs": {
+                "hyper_in_channels": 256,
+                "hyper_out_channels_list": [
+                    256,
+                    256,
+                    256,
+                    256
+                ],
+                "in_channels": 48,
+                "out_channels_list": [
+                    16,
+                    16,
+                    16,
+                    16
+                ]
+            }
+        },
+        "positional_encoder": {
+            "function": "vsrd.models.SinusoidalEncoder",
+            "kwargs": {
+                "num_frequencies": 8
+            }
+        }
+    },
+    "multiprocessing": {
+        "start_method": "spawn"
+    },
+    "optimization": {
+        "num_steps": 3000,
+        "param_group_names": [
+            "detector/locations",
+            "detector/dimensions",
+            "detector/orientations",
+            "detector/embeddings",
+            "hyper_distance_field"
+        ],
+        "warmup_steps": 1000
+    },
+    "optimizer": {
+        "function": "torch.optim.Adam",
+        "kwargs": {
+            "lr": 0.01,
+            "params": [
+                {
+                    "lr": 0.01,
+                    "params": "eval:[models.detector.locations]"
+                },
+                {
+                    "lr": 0.01,
+                    "params": "eval:[models.detector.dimensions]"
+                },
+                {
+                    "lr": 0.01,
+                    "params": "eval:[models.detector.orientations]"
+                },
+                {
+                    "lr": 0.001,
+                    "params": "eval:[models.detector.embeddings]"
+                },
+                {
+                    "lr": 0.0001,
+                    "params": "eval:models.hyper_distance_field.parameters()"
+                }
+            ]
+        }
+    },
+    "random": {
+        "global_seed": 0,
+        "use_unique_seed": true
+    },
+    "scheduler": {
+        "function": "torch.optim.lr_scheduler.ExponentialLR",
+        "kwargs": {
+            "gamma": "eval:0.01 ** (1.0 / 3000.0)",
+            "optimizer": "eval:optimizer"
+        }
+    },
+    "surface_rendering": {
+        "bounding_radius": 100.0,
+        "convergence_criteria": 0.01,
+        "num_iterations": 1000,
+        "num_rays": 100,
+        "patch_size": [
+            11,
+            11
+        ]
+    },
+    "volume_rendering": {
+        "distance_range": [
+            0.0,
+            100.0
+        ],
+        "max_sdf_std_deviation": 1.0,
+        "max_sdf_union_temperature": 1.0,
+        "min_sdf_std_deviation": 0.1,
+        "min_sdf_union_temperature": 0.1,
+        "num_coarse_samples": 100,
+        "num_fine_samples": 100,
+        "num_rays": 1000
     }
 }
