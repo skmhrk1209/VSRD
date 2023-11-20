@@ -5,13 +5,13 @@
 
 ## Installation
 
-### Setup the environment
+1. Setup the conda environment
 
 ```bash
 conda env create -f environment.yml
 ```
 
-### Install VSRD
+2. Install VSRD
 
 ```python
 pip install -e .
@@ -19,15 +19,15 @@ pip install -e .
 
 ## Data Preparation
 
-### Download [KITTI-360](https://www.cvlibs.net/datasets/kitti-360/)
+1. Download [the KITTI-360 dataset](https://www.cvlibs.net/datasets/kitti-360/)
 
-### Transform 3D bounding boxes from the world coordinate system to the camera coordinate system
+2. Transform 3D bounding boxes from the world coordinate system to the camera coordinate system
 
 ```bash
 python tools/datasets/kitti_360/make_annotations.py
 ```
 
-### Check whether the 3D bounding boxes are correctly transformed (optional)
+3. Check whether the 3D bounding boxes are correctly transformed (optional)
 
 ```bash
 python tools/datasets/kitti_360/visualize_annotations.py
