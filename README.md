@@ -5,13 +5,13 @@
 
 ## Installation
 
-1. Setup the conda environment
+1. Setup the conda environment.
 
 ```bash
 conda env create -f environment.yml
 ```
 
-2. Install this repository
+2. Install this repository.
 
 ```python
 pip install -e .
