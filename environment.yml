@@ -417,6 +417,6 @@ dependencies:
       - kitti360scripts==1.0.0
       - markdown-it-py==3.0.0
       - mdurl==0.1.2
-      - nerfacc==0.5.3+pt113cu116
+      # - nerfacc==0.5.3+pt113cu116
       - pygments==2.17.1
       - rich==13.7.0

@@ -8,8 +8,6 @@ import operator
 import torch
 import torch.nn as nn
 
-import nerfacc
-
 from .. import utils
 from . import samplers
 
@@ -42,8 +40,8 @@ def sphere_tracing(
     if bounding_radius and initialization:
         min_ray_distances, _, intersection_masks = sphere_intersection(ray_positions, ray_directions, bounding_radius)
         ray_positions = torch.where(
-            intersection_masks, 
-            ray_positions + ray_directions * min_ray_distances, 
+            intersection_masks,
+            ray_positions + ray_directions * min_ray_distances,
             ray_positions,
         )
         foreground_masks = foreground_masks & intersection_masks
@@ -53,8 +51,8 @@ def sphere_tracing(
         for _ in range(num_iterations):
             signed_distances = distance_field(ray_positions)
             ray_positions = torch.where(
-                foreground_masks & ~convergence_masks, 
-                ray_positions + ray_directions * signed_distances, 
+                foreground_masks & ~convergence_masks,
+                ray_positions + ray_directions * signed_distances,
                 ray_positions,
             )
             if bounding_radius:
@@ -288,6 +286,8 @@ def occupancy_volumetric_rendering(
     stratified=True,
     epsilon=1e-6,
 ):
+    import nerfacc
+
     # NOTE: just for NerfAcc
     def opacity_evaluator(prev_sampled_distances, next_sampled_distances, ray_indices):
 
@@ -320,8 +320,8 @@ def occupancy_volumetric_rendering(
         # https://github.com/bennyguo/instant-nsr-pl/blob/master/models/neus.py#L125
         sampled_cosines = torch.sum(sampled_ray_directions * sampled_normals, dim=-1, keepdim=True)
         sampled_cosines = -torch.lerp(
-            nn.functional.relu(-sampled_cosines * 0.5 + 0.5), 
-            nn.functional.relu(-sampled_cosines), 
+            nn.functional.relu(-sampled_cosines * 0.5 + 0.5),
+            nn.functional.relu(-sampled_cosines),
             cosine_ratio,
         )
 
@@ -347,8 +347,8 @@ def occupancy_volumetric_rendering(
     )
 
     sampled_opacities, sampled_gradients, *multi_sampled_features = opacity_evaluator(
-        prev_sampled_distances=prev_ray_distances, 
-        next_sampled_distances=next_ray_distances, 
+        prev_sampled_distances=prev_ray_distances,
+        next_sampled_distances=next_ray_distances,
         ray_indices=ray_indices,
     )
 
@@ -360,18 +360,18 @@ def occupancy_volumetric_rendering(
     # especially when we want to regularize the gradients of the SDF.
     packed_info = nerfacc.pack_info(ray_indices, ray_positions.shape[0])
     accumulated_transmittances = nerfacc.exclusive_prod(1.0 - sampled_opacities, packed_info)
-    
+
     sampled_weights = accumulated_transmittances * sampled_opacities
     sampled_weights = sampled_weights.unsqueeze(-1)
 
     multi_accumulated_features = [
         torch.index_add(
             input=sampled_features.new_zeros(
-                ray_positions.shape[0], 
+                ray_positions.shape[0],
                 *sampled_features.shape[1:],
             ),
-            index=ray_indices, 
-            source=sampled_features * sampled_weights, 
+            index=ray_indices,
+            source=sampled_features * sampled_weights,
             dim=0,
         )
         for sampled_features in multi_sampled_features
