@@ -1,0 +1,11 @@
+.*
+_*
+!.gitattributes
+!.gitignore
+!.gitmodules
+!__init__.py
+!.lfsconfig
+!.pre-commit*
+./datasets
+*egg-info*
+*mutagen*
