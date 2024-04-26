@@ -23,10 +23,10 @@ LINE_INDICES = [
 
 
 def make_predictions(
-    sequence, 
-    root_dirname, 
-    ckpt_dirname, 
-    ckpt_filename, 
+    sequence,
+    root_dirname,
+    ckpt_dirname,
+    ckpt_filename,
     split_filename,
     class_names,
 ):

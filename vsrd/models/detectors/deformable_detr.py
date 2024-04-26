@@ -91,7 +91,7 @@ class DeformableDetr3DHungarianMatcher(DeformableDetrHungarianMatcher):
 
         # Compute the giou cost between boxes
         giou_cost_matrix = -generalized_box_iou(
-            boxes1=center_to_corners_format(pred_boxes_2d), 
+            boxes1=center_to_corners_format(pred_boxes_2d),
             boxes2=center_to_corners_format(target_boxes_2d),
         )
 
@@ -100,20 +100,20 @@ class DeformableDetr3DHungarianMatcher(DeformableDetrHungarianMatcher):
 
         # Final cost matrix
         cost_matrix = (
-            class_cost_matrix * self.class_cost + 
-            bbox_cost_matrix * self.bbox_cost + 
-            giou_cost_matrix * self.giou_cost + 
+            class_cost_matrix * self.class_cost +
+            bbox_cost_matrix * self.bbox_cost +
+            giou_cost_matrix * self.giou_cost +
             location_cost_matrix * self.location_cost
         )
         cost_matrices = cost_matrix.reshape(batch_size, num_queries, -1)
 
         matched_indices = [
-            utils.torch_function(sp.optimize.linear_sum_assignment)(cost_matrices[batch_index]) 
+            utils.torch_function(sp.optimize.linear_sum_assignment)(cost_matrices[batch_index])
             for batch_index, cost_matrices in enumerate(torch.split(cost_matrices, num_targets, dim=-1))
         ]
 
         return matched_indices
-    
+
 
 class DeformableDETR3D(DeformableDetrForObjectDetection):
 

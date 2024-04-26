@@ -174,7 +174,7 @@ def draw_masks(image, masks, colors=None, weight=0.5):
 
     colors = colors.T.reshape(3, -1, 1, 1)
     masks = torch.sum(masks * colors, dim=1)
-    
+
     image = image + masks * weight
     image = torch.clamp(image, 0.0, 1.0)
 

@@ -31,8 +31,8 @@ pip install -e .
 
 2. Make a JSON annotation file for each frame.
 
-    - Frames without camera poses are excluded. 
-    - Frames without instance masks are exluded. 
+    - Frames without camera poses are excluded.
+    - Frames without instance masks are exluded.
     - 3D bounding boxes are transformed from the world coordinate system to each camera coordinate system.
 
 ```bash
@@ -90,7 +90,7 @@ torchrun \
 
 ## Pseudo Label Preparation
 
-1. Make a JSON pseudo label file for each target frame from the checkpoint. 
+1. Make a JSON pseudo label file for each target frame from the checkpoint.
 
     - The pseudo labels for each target frame are shared with all the frames in the same instance group.
     - The pseudo labels for each target frame are transformed from the target camera coordinate system to the other camera coordinate systems.
@@ -113,7 +113,7 @@ python tools/datasets/kitti_360/convert_predictions.py
 
 ## License
 
-VSRD is released under the Apache 2.0 license. 
+VSRD is released under the Apache 2.0 license.
 
 ## Citation
 
