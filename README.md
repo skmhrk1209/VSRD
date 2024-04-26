@@ -1,6 +1,6 @@
 # VSRD: Instance-Aware Volumetric Silhouette Rendering for Weakly Supervised 3D Object Detection
 
-Official Implementation of "VSRD: Instance-Aware Volumetric Silhouette Rendering for Weakly Supervised 3D Object Detection" [CVPR 2024]
+Official Implementation of ["VSRD: Instance-Aware Volumetric Silhouette Rendering for Weakly Supervised 3D Object Detection" [CVPR 2024]](https://arxiv.org/abs/2404.00149)
 
 ![python](https://img.shields.io/badge/Python-3.10-3670A0?style=flat&logo=Python&logoColor=ffdd54)
 ![pytorch](https://img.shields.io/badge/PyTorch-1.13-%23EE4C2C.svg?style=flat&logo=PyTorch&logoColor=%23EE4C2C)
