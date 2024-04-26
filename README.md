@@ -117,7 +117,7 @@ python tools/datasets/kitti_360/convert_predictions.py
 
 ## License
 
-VSRD is released under the Apache 2.0 license.
+VSRD is released under the MIT license.
 
 ## Citation
 
