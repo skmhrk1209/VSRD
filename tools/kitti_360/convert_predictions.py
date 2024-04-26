@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import os
 import json
 import glob
@@ -37,7 +32,7 @@ def encode_box_3d(boxes_3d):
         boxes_3d[..., [2, 3, 7, 6], :],
     ), dim=-1), dim=-1)
 
-    dimensions = torch.stack([widths, heights, lengths], dim=-1) # / 2.0
+    dimensions = torch.stack([widths, heights, lengths], dim=-1)
 
     orientations = torch.mean(torch.sub(
         boxes_3d[..., [1, 0, 4, 5], :],
@@ -45,14 +40,12 @@ def encode_box_3d(boxes_3d):
     ), dim=-2)
 
     orientations = nn.functional.normalize(orientations[..., [2, 0]], dim=-1)
-
     orientations = torch.atan2(*reversed(torch.unbind(orientations, dim=-1)))
-    # orientations = rotation_matrix_y(*torch.unbind(orientations, dim=-1))
 
     return locations, dimensions, orientations
 
 
-def export_result(filename, class_names, boxes_3d, boxes_2d, scores):
+def save_prediction(filename, class_names, boxes_3d, boxes_2d, scores):
 
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
@@ -62,12 +55,14 @@ def export_result(filename, class_names, boxes_3d, boxes_2d, scores):
 
             location, dimension, orientation = encode_box_3d(box_3d)
 
-            # NOTE: KITTI-3D definition
+            # ================================================================
+            # KITTI-3D definition
             location[..., 1] += dimension[..., 1] / 2.0
             dimension = dimension[..., [1, 0, 2]]
             ray_orientation = torch.atan2(*reversed(torch.unbind(location[..., [2, 0]], dim=-1)))
             global_orientation = orientation - np.pi / 2.0
             local_orientation = global_orientation - ray_orientation
+            # ================================================================
 
             file.write(
                 f"{class_name.capitalize()} "
@@ -82,7 +77,7 @@ def export_result(filename, class_names, boxes_3d, boxes_2d, scores):
             )
 
 
-def export_results(sequence, root_dirname, ckpt_dirname, class_names):
+def convert_predictions(sequence, root_dirname, ckpt_dirname, class_names):
 
     prediction_dirname = os.path.join("predictions", os.path.basename(ckpt_dirname))
     prediction_filenames = sorted(glob.glob(os.path.join(root_dirname, prediction_dirname, sequence, "image_00", "data_rect", "*.json")))
@@ -148,30 +143,32 @@ def export_results(sequence, root_dirname, ckpt_dirname, class_names):
 
         if not torch.all(torch.isfinite(gt_boxes_3d)): continue
 
-        result_dirname = os.path.join("results", os.path.basename(ckpt_dirname))
-        result_filename = os.path.splitext(os.path.relpath(annotation_filename, root_dirname))[0]
-        result_filename = os.path.join(root_dirname, result_dirname, f"{result_filename}.txt")
+        label_dirname = os.path.join("labels", os.path.basename(ckpt_dirname))
+        label_filename = os.path.splitext(os.path.relpath(prediction_filename, root_dirname))[0]
+        label_filename = os.path.join(root_dirname, label_dirname, f"{label_filename}.txt")
 
-        os.makedirs(os.path.dirname(result_filename), exist_ok=True)
-        export_result(
-            filename=result_filename,
-            class_names=gt_class_names,
-            boxes_3d=gt_boxes_3d,
-            boxes_2d=gt_boxes_2d,
-            scores=torch.ones(len(gt_class_names)),
-        )
+        os.makedirs(os.path.dirname(label_filename), exist_ok=True)
 
-        result_dirname = os.path.join("results", os.path.basename(ckpt_dirname))
-        result_filename = os.path.splitext(os.path.relpath(prediction_filename, root_dirname))[0]
-        result_filename = os.path.join(root_dirname, result_dirname, f"{result_filename}.txt")
-
-        os.makedirs(os.path.dirname(result_filename), exist_ok=True)
-        export_result(
-            filename=result_filename,
+        save_prediction(
+            filename=label_filename,
             class_names=pd_class_names,
             boxes_3d=pd_boxes_3d,
             boxes_2d=pd_boxes_2d,
             scores=pd_confidences,
+        )
+
+        label_dirname = os.path.join("labels", os.path.basename(ckpt_dirname))
+        label_filename = os.path.splitext(os.path.relpath(annotation_filename, root_dirname))[0]
+        label_filename = os.path.join(root_dirname, label_dirname, f"{label_filename}.txt")
+
+        os.makedirs(os.path.dirname(label_filename), exist_ok=True)
+
+        save_prediction(
+            filename=label_filename,
+            class_names=gt_class_names,
+            boxes_3d=gt_boxes_3d,
+            boxes_2d=gt_boxes_2d,
+            scores=torch.ones(len(gt_class_names)),
         )
 
 
@@ -184,7 +181,7 @@ def main(args):
         with tqdm.tqdm(total=len(sequences)) as progress_bar:
 
             for _ in pool.imap_unordered(functools.partial(
-                export_results,
+                convert_predictions,
                 root_dirname=args.root_dirname,
                 ckpt_dirname=args.ckpt_dirname,
                 class_names=args.class_names,
@@ -195,7 +192,7 @@ def main(args):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="VSRD: Result Exporter for KITTI-360")
+    parser = argparse.ArgumentParser(description="VSRD: Prediction Converter for KITTI-360")
     parser.add_argument("--root_dirname", type=str, default="datasets/KITTI-360")
     parser.add_argument("--ckpt_dirname", type=str, default="ckpts/kitti_360/vsrd")
     parser.add_argument("--class_names", type=str, nargs="+", default=["car"])

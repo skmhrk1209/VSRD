@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import torch
 import numpy as np
 import skimage
@@ -24,7 +19,6 @@ def draw_boxes_3d(image, boxes_3d, line_indices, intrinsic_matrix, *args, **kwar
     image = np.ascontiguousarray(image)
 
     # NOTE: use the KITTI-360 "evaluation" format instaed of the KITTI-360 "annotation" format
-    # NOTE: the KITTI-360 "annotation" format is different from the KITTI-360 "evaluation" format
     # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/prepare_train_val_windows.py#L133
     # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/evalDetection.py#L552
 
@@ -66,7 +60,6 @@ def draw_boxes_bev(image, boxes_3d, extents=((-50.0, 100.0), (50.0, 0.0)), *args
     image = np.ascontiguousarray(image)
 
     # NOTE: use the KITTI-360 "evaluation" format instaed of the KITTI-360 "annotation" format
-    # NOTE: the KITTI-360 "annotation" format is different from the KITTI-360 "evaluation" format
     # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/prepare_train_val_windows.py#L133
     # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/evalDetection.py#L552
 
