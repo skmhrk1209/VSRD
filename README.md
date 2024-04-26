@@ -15,7 +15,7 @@ conda env create -f environment.yml
 
 2. Install this repository.
 
-```python
+```bash
 pip install -e .
 ```
 
@@ -35,15 +35,15 @@ pip install -e .
     - Frames without instance masks are exluded. 
     - 3D bounding boxes are transformed from the world coordinate system to each camera coordinate system.
 
-    ```bash
-    python tools/datasets/kitti_360/make_annotations.py
-    ```
+```bash
+python tools/datasets/kitti_360/make_annotations.py
+```
 
 3. (Optional) Visualize annotations to check whether 3D bounding boxes were successfully transformed.
 
-    ```bash
-    python tools/datasets/kitti_360/visualize_annotations.py
-    ```
+```bash
+python tools/datasets/kitti_360/visualize_annotations.py
+```
 
 4. Sample source frames for each target frame.
 
@@ -53,9 +53,9 @@ pip install -e .
     - Only one target frame for each instance group is labeled by our method.
     - Pseudo labels for each target frame can be shared with all the frames in the same instance group.
 
-    ```bash
-    python tools/datasets/kitti_360/sample_annotations.py
-    ```
+```bash
+python tools/datasets/kitti_360/sample_annotations.py
+```
 
 ## Multi-View 3D Auto-Labeling
 
@@ -95,21 +95,21 @@ torchrun \
     - The pseudo labels for each target frame are shared with all the frames in the same instance group.
     - The pseudo labels for each target frame are transformed from the target camera coordinate system to the other camera coordinate systems.
 
-    ```bash
-    python tools/datasets/kitti_360/make_predictions.py
-    ```
+```bash
+python tools/datasets/kitti_360/make_predictions.py
+```
 
 2. (Optional) Visualize pseudo labels to check whether 3D bounding boxes were successfully transformed.
 
-    ```bash
-    python tools/datasets/kitti_360/visualize_predictions.py
-    ```
+```bash
+python tools/datasets/kitti_360/visualize_predictions.py
+```
 
 3. Convert the pseudo labels from our own JSON format to the KITTI format to make use of existing training frameworks like [MMDetection3D](https://github.com/open-mmlab/mmdetection3d).
 
-    ```bash
-    python tools/datasets/kitti_360/convert_predictions.py
-    ```
+```bash
+python tools/datasets/kitti_360/convert_predictions.py
+```
 
 ## License
 
