@@ -9,15 +9,15 @@ Official Implementation of ["VSRD: Instance-Aware Volumetric Silhouette Renderin
 
 1. Setup the conda environment.
 
-    ```bash
-    conda env create -f environment.yaml
-    ```
+```bash
+conda env create -f environment.yaml
+```
 
 2. Install this repository.
 
-    ```bash
-    pip install -e .
-    ```
+```bash
+pip install -e .
+```
 
 ## Data Preparation
 
@@ -35,15 +35,15 @@ Official Implementation of ["VSRD: Instance-Aware Volumetric Silhouette Renderin
     - Frames without instance masks are exluded.
     - 3D bounding boxes are transformed from the world coordinate system to each camera coordinate system.
 
-    ```bash
-    python tools/datasets/kitti_360/make_annotations.py
-    ```
+```bash
+python tools/datasets/kitti_360/make_annotations.py
+```
 
 3. (Optional) Visualize annotations to check whether 3D bounding boxes were successfully transformed.
 
-    ```bash
-    python tools/datasets/kitti_360/visualize_annotations.py
-    ```
+```bash
+python tools/datasets/kitti_360/visualize_annotations.py
+```
 
 4. Sample source frames for each target frame.
 
@@ -53,43 +53,44 @@ Official Implementation of ["VSRD: Instance-Aware Volumetric Silhouette Renderin
     - Only one target frame for each instance group is labeled by VSRD.
     - Pseudo labels for each target frame can be shared with all the frames in the same instance group.
 
-    ```bash
-    python tools/datasets/kitti_360/sample_annotations.py
-    ```
+```bash
+python tools/datasets/kitti_360/sample_annotations.py
+```
 
 ## Multi-View 3D Auto-Labeling
 
-- Our multi-view 3D auto-labeling optimizes the 3D bounding boxes and residual signed distance fields (RDF) for each target frame. 
-- Target frames in each sequence are split and distributed across multiple processes, each of which processes them independently.
-- Please run [main.py](scripts/main.py) with the corresponding configuration file for each sequence.
-- Here are examples of how to launch multiple processes using Slurm and Torchrun.
+Our multi-view 3D auto-labeling optimizes the 3D bounding boxes and residual signed distance fields (RDF) for each target frame. 
 
-    - [Slurm](https://ja.wikipedia.org/wiki/Slurm_Workload_Manager)
+### Distributed Training
 
-    ```bash
-    python -m vsrd.distributed.slurm.launch \
-        --partition PARTITION \
-        --num_nodes NUM_NODES \
-        --num_gpus NUM_GPUS \
-        scripts/main.py \
-            --launcher slurm \
-            --config CONFIG \
-            --train
-    ```
+Target frames in each sequence are split and distributed across multiple processes, each of which processes the chunk independently. Note that gradients are not averaged between processes unlike general distributed training. Please run [main.py](scripts/main.py) with the corresponding configuration file for each sequence as follows:
 
-    - [Torchrun](https://pytorch.org/docs/stable/elastic/run.html)
+- [Slurm](https://ja.wikipedia.org/wiki/Slurm_Workload_Manager)
 
-    ```bash
-    torchrun \
-        --rdzv_backend c10d \
-        --rdzv_endpoint HOST_NODE_ADDR \
-        --nnodes NUM_NODES \
-        --nproc_per_node NUM_GPUS \
-        scripts/main.py \
-            --launcher torchrun \
-            --config CONFIG \
-            --train
-    ```
+```bash
+python -m vsrd.distributed.slurm.launch \
+    --partition PARTITION \
+    --num_nodes NUM_NODES \
+    --num_gpus NUM_GPUS \
+    scripts/main.py \
+        --launcher slurm \
+        --config CONFIG \
+        --train
+```
+
+- [Torchrun](https://pytorch.org/docs/stable/elastic/run.html)
+
+```bash
+torchrun \
+    --rdzv_backend c10d \
+    --rdzv_endpoint HOST_NODE_ADDR \
+    --nnodes NUM_NODES \
+    --nproc_per_node NUM_GPUS \
+    scripts/main.py \
+        --launcher torchrun \
+        --config CONFIG \
+        --train
+```
 
 ## Pseudo Label Preparation
 
@@ -98,21 +99,21 @@ Official Implementation of ["VSRD: Instance-Aware Volumetric Silhouette Renderin
     - The pseudo labels for each target frame are shared with all the frames in the same instance group.
     - The pseudo labels for each target frame are transformed from the target camera coordinate system to the other camera coordinate systems.
 
-    ```bash
-    python tools/datasets/kitti_360/make_predictions.py
-    ```
+```bash
+python tools/datasets/kitti_360/make_predictions.py
+```
 
 2. (Optional) Visualize pseudo labels to check whether 3D bounding boxes were successfully transformed.
 
-    ```bash
-    python tools/datasets/kitti_360/visualize_predictions.py
-    ```
+```bash
+python tools/datasets/kitti_360/visualize_predictions.py
+```
 
 3. Convert the pseudo labels from our own JSON format to the KITTI format to make use of existing training frameworks like [MMDetection3D](https://github.com/open-mmlab/mmdetection3d).
 
-    ```bash
-    python tools/datasets/kitti_360/convert_predictions.py
-    ```
+```bash
+python tools/datasets/kitti_360/convert_predictions.py
+```
 
 ## License
 
@@ -120,11 +121,11 @@ VSRD is released under the Apache 2.0 license.
 
 ## Citation
 
-    ```bibtex
-    @article{liu2024vsrd,
-    title={VSRD: Instance-Aware Volumetric Silhouette Rendering for Weakly Supervised 3D Object Detection},
-    author={Liu, Zihua and Sakuma, Hiroki and Okutomi, Masatoshi},
-    journal={arXiv preprint arXiv:2404.00149},
-    year={2024}
-    }
-    ```
+```bibtex
+@article{liu2024vsrd,
+title={VSRD: Instance-Aware Volumetric Silhouette Rendering for Weakly Supervised 3D Object Detection},
+author={Liu, Zihua and Sakuma, Hiroki and Okutomi, Masatoshi},
+journal={arXiv preprint arXiv:2404.00149},
+year={2024}
+}
+```
