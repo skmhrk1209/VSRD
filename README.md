@@ -39,7 +39,7 @@ pip install -e .
 python tools/datasets/kitti_360/make_annotations.py
 ```
 
-3. (Optional) Visualize annotations to check whether 3D bounding boxes were successfully transformed.
+3. (Optional) Visualize the annotations to check whether the 3D bounding boxes were successfully transformed.
 
 ```bash
 python tools/datasets/kitti_360/visualize_annotations.py
@@ -51,7 +51,7 @@ python tools/datasets/kitti_360/visualize_annotations.py
     - Target frames without at least 16 source frames are excluded.
     - Target frames with the same set of instance IDs are grouped together.
     - Only one target frame for each instance group is labeled by VSRD.
-    - Pseudo labels for each target frame can be shared with all the frames in the same instance group.
+    - The pseudo labels for each target frame are shared with all the frames in the same instance group.
 
 ```bash
 python tools/datasets/kitti_360/sample_annotations.py
@@ -59,13 +59,13 @@ python tools/datasets/kitti_360/sample_annotations.py
 
 ## Multi-View 3D Auto-Labeling
 
-Our multi-view 3D auto-labeling optimizes the 3D bounding boxes and residual signed distance fields (RDF) for each target frame. 
+VSRD optimizes the 3D bounding boxes and residual signed distance fields (RDF) for each target frame. The optimized 3D bounding boxes can be used as pseudo labels for training of any 3D object detectors.
 
 ### Distributed Training
 
-Target frames in each sequence are split and distributed across multiple processes, each of which processes the chunk independently. Note that gradients are not averaged between processes unlike general distributed training. Please run [main.py](scripts/main.py) with the corresponding configuration file for each sequence as follows:
+Sampled target frames in each sequence are split and distributed across multiple processes, each of which processes the chunk independently. Note that gradients are not averaged between processes unlike general distributed training. Please run [main.py](scripts/main.py) with the corresponding configuration file for each sequence as follows:
 
-- [Slurm](https://ja.wikipedia.org/wiki/Slurm_Workload_Manager)
+- [Slurm](https://slurm.schedmd.com/documentation.html)
 
 ```bash
 python -m vsrd.distributed.slurm.launch \
@@ -103,7 +103,7 @@ torchrun \
 python tools/datasets/kitti_360/make_predictions.py
 ```
 
-2. (Optional) Visualize pseudo labels to check whether 3D bounding boxes were successfully transformed.
+2. (Optional) Visualize the pseudo labels to check whether the 3D bounding boxes were successfully transformed.
 
 ```bash
 python tools/datasets/kitti_360/visualize_predictions.py
