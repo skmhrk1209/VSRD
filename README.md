@@ -50,7 +50,7 @@ python tools/datasets/kitti_360/visualize_annotations.py
     - Please refer to the supplementary material for how to sample source frames.
     - Target frames without at least 16 source frames are excluded.
     - Target frames with the same set of instance IDs are grouped together.
-    - Only one target frame for each instance group is labeled by our method.
+    - Only one target frame for each instance group is labeled by VSRD.
     - Pseudo labels for each target frame can be shared with all the frames in the same instance group.
 
 ```bash
@@ -59,7 +59,7 @@ python tools/datasets/kitti_360/sample_annotations.py
 
 ## Multi-View 3D Auto-Labeling
 
-Our multi-view 3D auto labeling optimizes the 3D bounding boxes and residual signed distance fields (RDF) for each scene. Note that the data is split and distributed to each process, but unlike general distributed training, the gradients are not averaged between processes.
+Our multi-view 3D auto-labeling optimizes the 3D bounding boxes and residual signed distance fields (RDF) for each scene. Note that the data is split and distributed to each process, but unlike general distributed training, the gradients are not averaged between processes.
 
 - [Slurm Workload Manager](https://ja.wikipedia.org/wiki/Slurm_Workload_Manager)
 
