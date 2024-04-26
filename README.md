@@ -10,7 +10,7 @@ Official Implementation of "VSRD: Instance-Aware Volumetric Silhouette Rendering
 1. Setup the conda environment.
 
 ```bash
-conda env create -f environment.yml
+conda env create -f environment.yaml
 ```
 
 2. Install this repository.
