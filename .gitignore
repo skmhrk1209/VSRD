@@ -4,7 +4,4 @@ _*
 !.gitignore
 !.gitmodules
 !__init__.py
-!.lfsconfig
 !.pre-commit*
-*egg-info*
-*mutagen*

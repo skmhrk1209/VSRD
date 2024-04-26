@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import os
 import json
 import glob
@@ -27,8 +22,14 @@ LINE_INDICES = [
 ]
 
 
-def make_predictions(sequence, root_dirname, ckpt_dirname, ckpt_filename, split_filename, class_names):
-
+def make_predictions(
+    sequence,
+    root_dirname,
+    ckpt_dirname,
+    ckpt_filename,
+    split_filename,
+    class_names,
+):
     group_filename = os.path.join(root_dirname, "filenames", split_filename, sequence, "grouped_image_filenames.txt")
 
     with open(group_filename) as file:
@@ -59,7 +60,7 @@ def make_predictions(sequence, root_dirname, ckpt_dirname, ckpt_filename, split_
         target_checkpoint = torch.load(target_ckpt_filename, map_location="cpu")
 
         model = vsrd.models.BoxParameters3D(*torch.tensor(target_checkpoint["models"]["detector"]["embeddings"]).shape)
-        model.load_state_dict(target_checkpoint["models"]["detector"], strict=False)
+        model.load_state_dict(target_checkpoint["models"]["detector"])
 
         world_boxes_3d, = model()["boxes_3d"]
         world_boxes_3d = nn.functional.pad(world_boxes_3d, (0, 1), mode="constant", value=1.0)

@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import operator
 import itertools
 
@@ -93,7 +88,7 @@ class Detr3DHungarianMatcher(DetrHungarianMatcher):
 
         # Compute the giou cost between boxes
         giou_cost_matrix = -generalized_box_iou(
-            boxes1=center_to_corners_format(pred_boxes_2d), 
+            boxes1=center_to_corners_format(pred_boxes_2d),
             boxes2=center_to_corners_format(target_boxes_2d),
         )
 
@@ -102,20 +97,20 @@ class Detr3DHungarianMatcher(DetrHungarianMatcher):
 
         # Final cost matrix
         cost_matrix = (
-            class_cost_matrix * self.class_cost + 
-            bbox_cost_matrix * self.bbox_cost + 
-            giou_cost_matrix * self.giou_cost + 
+            class_cost_matrix * self.class_cost +
+            bbox_cost_matrix * self.bbox_cost +
+            giou_cost_matrix * self.giou_cost +
             location_cost_matrix * self.location_cost
         )
         cost_matrices = cost_matrix.reshape(batch_size, num_queries, -1)
 
         matched_indices = [
-            utils.torch_function(sp.optimize.linear_sum_assignment)(cost_matrices[batch_index]) 
+            utils.torch_function(sp.optimize.linear_sum_assignment)(cost_matrices[batch_index])
             for batch_index, cost_matrices in enumerate(torch.split(cost_matrices, num_targets, dim=-1))
         ]
 
         return matched_indices
-    
+
 
 class DETR3D(DetrForObjectDetection):
 
@@ -300,7 +295,6 @@ class DETR3D(DetrForObjectDetection):
     @staticmethod
     def decode_box_3d(locations, dimensions, orientations):
         # NOTE: use the KITTI-360 "evaluation" format instaed of the KITTI-360 "annotation" format
-        # NOTE: the KITTI-360 "annotation" format is different from the KITTI-360 "evaluation" format
         # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/prepare_train_val_windows.py#L133
         # https://github.com/autonomousvision/kitti360Scripts/blob/master/kitti360scripts/evaluation/semantic_3d/evalDetection.py#L552
         boxes = dimensions.new_tensor([

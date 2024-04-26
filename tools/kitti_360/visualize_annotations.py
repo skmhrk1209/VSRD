@@ -1,8 +1,3 @@
-# ================================================================
-# Copyright 2022 SenseTime. All Rights Reserved.
-# @author Hiroki Sakuma <sakuma@sensetime.jp>
-# ================================================================
-
 import os
 import json
 import glob
