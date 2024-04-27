@@ -5,6 +5,8 @@
 
 The official Implementation of ["VSRD: Instance-Aware Volumetric Silhouette Rendering for Weakly Supervised 3D Object Detection" [CVPR 2024]](https://arxiv.org/abs/2404.00149)
 
+https://github.com/skmhrk1209/VSRD/assets/29158616/4093a3b1-c220-496b-b1ca-87eec019e539
+
 ## Installation
 
 1. Setup the conda environment.
