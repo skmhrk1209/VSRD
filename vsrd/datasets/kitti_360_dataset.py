@@ -98,10 +98,10 @@ class KITTI360Dataset(torch.utils.data.Dataset):
         if instance_ids:
 
             masks = torch.cat([
-                torch.as_tensor([
+                torch.as_tensor(np.stack([
                     pycocotools.mask.decode(annotation["masks"][class_name][instance_id])
                     for instance_id in instance_ids
-                ], dtype=torch.float)
+                ]), dtype=torch.float)
                 for class_name, instance_ids in instance_ids.items()
             ], dim=0)
 

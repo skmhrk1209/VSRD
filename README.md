@@ -23,26 +23,32 @@ pip install -e .
 
 1. Download the [KITTI-360](https://www.cvlibs.net/datasets/kitti-360/download.php) dataset.
 
-    - Perspective Images [[download]](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/a1d81d9f7fc7195c937f9ad12e2a2c66441ecb4e/download_2d_perspective.zip)
-    - Instance Masks [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/ed180d24c0a144f2f1ac71c2c655a3e986517ed8/data_2d_semantics.zip)]
-    - 3D Bounding Boxes [[download]](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/ffa164387078f48a20f0188aa31b0384bb19ce60/data_3d_bboxes.zip)
-    - Camera Parameters [[download]](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/384509ed5413ccc81328cf8c55cc6af078b8c444/calibration.zip)
-    - Camera Poses [[download]](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/89a6bae3c8a6f789e12de4807fc1e8fdcf182cf4/data_poses.zip)
+    - Perspective images (124 GB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/a1d81d9f7fc7195c937f9ad12e2a2c66441ecb4e/download_2d_perspective.zip)]
+    - Instance masks (2.2 GB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/ed180d24c0a144f2f1ac71c2c655a3e986517ed8/data_2d_semantics.zip)]
+    - 3D bounding boxes (420 MB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/ffa164387078f48a20f0188aa31b0384bb19ce60/data_3d_bboxes.zip)]
+    - Camera parameters(28 KB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/384509ed5413ccc81328cf8c55cc6af078b8c444/calibration.zip)]
+    - Camera poses (28 MB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/89a6bae3c8a6f789e12de4807fc1e8fdcf182cf4/data_poses.zip)]
+
 
 2. Make a JSON annotation file for each frame.
 
     - Frames without camera poses are excluded.
     - Frames without instance masks are exluded.
-    - 3D bounding boxes are transformed from the world coordinate system to each camera coordinate system.
+    - 3D bounding boxes are transformed from the world coordinate system to the camera coordinate systems.
 
 ```bash
-python tools/datasets/kitti_360/make_annotations.py
+python tools/kitti_360/make_annotations.py \
+    --root_dirname ROOT_DIRNAME \
+    --num_workers NUM_WORKERS
 ```
 
-3. (Optional) Visualize the annotations to check whether the 3D bounding boxes were successfully transformed.
+3. (Optional) Visualize the annotations to make sure the previous step has been completed successfully.
 
 ```bash
-python tools/datasets/kitti_360/visualize_annotations.py
+python tools/kitti_360/visualize_annotations.py \
+    --root_dirname ROOT_DIRNAME \
+    --out_dirname OUT_DIRNAME \
+    --num_workers NUM_WORKERS
 ```
 
 4. Sample source frames for each target frame.
@@ -54,7 +60,9 @@ python tools/datasets/kitti_360/visualize_annotations.py
     - The pseudo labels for each target frame are shared with all the frames in the same instance group.
 
 ```bash
-python tools/datasets/kitti_360/sample_annotations.py
+python tools/kitti_360/sample_annotations.py \
+    --root_dirname ROOT_DIRNAME \
+    --num_workers NUM_WORKERS
 ```
 
 ## Multi-View 3D Auto-Labeling
@@ -100,19 +108,29 @@ torchrun \
     - The pseudo labels for each target frame are transformed from the target camera coordinate system to the other camera coordinate systems.
 
 ```bash
-python tools/datasets/kitti_360/make_predictions.py
+python tools/kitti_360/make_predictions.py \
+    --root_dirname ROOT_DIRNAME \
+    --ckpt_dirname CKPT_DIRNAME \
+    --num_workers NUM_WORKERS
 ```
 
-2. (Optional) Visualize the pseudo labels to check whether the 3D bounding boxes were successfully transformed.
+2. (Optional) Visualize the pseudo labels to make sure the previous step has been completed successfully.
 
 ```bash
-python tools/datasets/kitti_360/visualize_predictions.py
+python tools/kitti_360/visualize_predictions.py \
+    --root_dirname ROOT_DIRNAME \
+    --ckpt_dirname CKPT_DIRNAME \
+    --out_dirname OUT_DIRNAME \
+    --num_workers NUM_WORKERS
 ```
 
 3. Convert the pseudo labels from our own JSON format to the KITTI format to make use of existing training frameworks like [MMDetection3D](https://github.com/open-mmlab/mmdetection3d).
 
 ```bash
-python tools/datasets/kitti_360/convert_predictions.py
+python tools/kitti_360/convert_predictions.py \
+    --root_dirname ROOT_DIRNAME \
+    --ckpt_dirname CKPT_DIRNAME \
+    --num_workers NUM_WORKERS
 ```
 
 ## License

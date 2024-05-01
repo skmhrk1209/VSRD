@@ -27,10 +27,10 @@ def make_predictions(
     root_dirname,
     ckpt_dirname,
     ckpt_filename,
-    split_filename,
+    split_dirname,
     class_names,
 ):
-    group_filename = os.path.join(root_dirname, "filenames", split_filename, sequence, "grouped_image_filenames.txt")
+    group_filename = os.path.join(root_dirname, "filenames", split_dirname, sequence, "grouped_image_filenames.txt")
 
     with open(group_filename) as file:
         grouped_image_filenames = {
@@ -38,7 +38,7 @@ def make_predictions(
             for line in map(str.strip, file)
         }
 
-    sample_filename = os.path.join(root_dirname, "filenames", split_filename, sequence, "sampled_image_filenames.txt")
+    sample_filename = os.path.join(root_dirname, "filenames", split_dirname, sequence, "sampled_image_filenames.txt")
 
     with open(sample_filename) as file:
         sampled_image_filenames = {
@@ -204,7 +204,7 @@ def main(args):
                 root_dirname=args.root_dirname,
                 ckpt_dirname=args.ckpt_dirname,
                 ckpt_filename=args.ckpt_filename,
-                split_filename=args.split_filename,
+                split_dirname=args.split_dirname,
                 class_names=args.class_names,
             ), sequences):
 
@@ -217,7 +217,7 @@ if __name__ == "__main__":
     parser.add_argument("--root_dirname", type=str, default="datasets/KITTI-360")
     parser.add_argument("--ckpt_dirname", type=str, default="ckpts/kitti_360/vsrd")
     parser.add_argument("--ckpt_filename", type=str, default="step_2999.pt")
-    parser.add_argument("--split_filename", type=str, default="R50-N16-M128-B16")
+    parser.add_argument("--split_dirname", type=str, default="R50-N16-M128-B16")
     parser.add_argument("--class_names", type=str, nargs="+", default=["car"])
     parser.add_argument("--num_workers", type=int, default=9)
     args = parser.parse_args()

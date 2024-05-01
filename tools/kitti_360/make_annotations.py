@@ -80,7 +80,7 @@ def make_annotations(sequence, root_dirname):
         wld_boxes_3d[frame_index][instance_id] = wld_box_3d
 
     # ================================================================
-    # image & segmentation mask
+    # image & instance mask
 
     image_filenames = sorted(glob.glob(os.path.join(root_dirname, "data_2d_raw", sequence, "**", "*.png"), recursive=True))
 

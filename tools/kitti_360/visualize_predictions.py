@@ -93,12 +93,6 @@ def visualize_predictions(sequence, root_dirname, ckpt_dirname, out_dirname, cla
             if class_name in class_names
         ], dim=0)
 
-        boxes_2d = torch.cat([
-            torch.as_tensor(boxes_2d, dtype=torch.float)
-            for class_name, boxes_2d in prediction["boxes_2d"].items()
-            if class_name in class_names
-        ], dim=0)
-
         confidences = torch.cat([
             torch.as_tensor(confidences, dtype=torch.float)
             for class_name, confidences in prediction["confidences"].items()
@@ -180,7 +174,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="VSRD: Prediction Visualizer for KITTI-360")
     parser.add_argument("--root_dirname", type=str, default="datasets/KITTI-360")
     parser.add_argument("--ckpt_dirname", type=str, default="ckpts/kitti_360/vsrd")
-    parser.add_argument("--out_dirname", type=str, default="videos/kitti_360/predictions")
+    parser.add_argument("--out_dirname", type=str, default="images/kitti_360/predictions")
     parser.add_argument("--class_names", type=str, nargs="+", default=["car"])
     parser.add_argument("--frame_rate", type=int, default=10)
     parser.add_argument("--num_workers", type=int, default=9)
