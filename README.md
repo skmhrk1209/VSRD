@@ -25,12 +25,11 @@ pip install -e .
 
 1. Download the [KITTI-360](https://www.cvlibs.net/datasets/kitti-360/download.php) dataset.
 
-    - Perspective images (124 GB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/a1d81d9f7fc7195c937f9ad12e2a2c66441ecb4e/download_2d_perspective.zip)]
-    - Instance masks (2.2 GB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/ed180d24c0a144f2f1ac71c2c655a3e986517ed8/data_2d_semantics.zip)]
-    - 3D bounding boxes (420 MB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/ffa164387078f48a20f0188aa31b0384bb19ce60/data_3d_bboxes.zip)]
-    - Camera parameters(28 KB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/384509ed5413ccc81328cf8c55cc6af078b8c444/calibration.zip)]
-    - Camera poses (28 MB) [[download](https://s3.eu-central-1.amazonaws.com/avg-projects/KITTI-360/89a6bae3c8a6f789e12de4807fc1e8fdcf182cf4/data_poses.zip)]
-
+    - Perspective images (124 GB)
+    - Instance masks (2.2 GB)
+    - 3D bounding boxes (420 MB)
+    - Camera parameters(28 KB)
+    - Camera poses (28 MB)
 
 2. Make a JSON annotation file for each frame.
 
