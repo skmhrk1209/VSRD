@@ -35,7 +35,7 @@ pip install -e .
 2. Make a JSON annotation file for each frame.
 
     - Frames without camera poses are excluded.
-    - Frames without instance masks are exluded.
+    - Frames without instance masks are excluded.
     - 3D bounding boxes are transformed from the world coordinate system to the camera coordinate systems.
 
 ```bash
