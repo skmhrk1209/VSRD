@@ -108,7 +108,7 @@ pip install -e .
     We split all the sequences into training, validation, and test sets. The number of target frames subject to optimization by VSRD and the number of labeled frames are as follows:
 
     | Sequence                   | Split      | # Target Frames | # Labeled Frames |
-    | -------------------------- | ---------- | --------------- | ---------------- |
+    | :------------------------- | :--------- | --------------: | ---------------: |
     | 2013_05_28_drive_0000_sync | Training   | 2562            | 9666             |
     | 2013_05_28_drive_0002_sync | Training   | 748             | 7569             |
     | 2013_05_28_drive_0003_sync | Validation | 32              | 238              |
