@@ -23,7 +23,9 @@ pip install -e .
 
 ## Data Preparation
 
-1. Download the following data from the [KITTI-360](https://www.cvlibs.net/datasets/kitti-360/download.php) dataset.
+1. Download the [KITTI-360](https://www.cvlibs.net/datasets/kitti-360/download.php) dataset.
+
+    Only the following data are required.
 
     - Left perspective images (124 GB)
     - Left instance masks (2.2 GB)
@@ -31,40 +33,91 @@ pip install -e .
     - Camera parameters (28 KB)
     - Camera poses (28 MB)
 
+    Make sure the directory structure is the same as below:
+
+    ```bash
+    KITTI-360
+    ├── calibration         # camera parameters
+    ├── data_2d_raw         # perspective images
+    ├── data_2d_semantics   # instance masks
+    ├── data_3d_bboxes      # 3D bounding boxes
+    └── data_poses          # camera poses
+    ```
+
 2. Make a JSON annotation file for each frame.
 
-    - Frames without optimized camera poses are excluded.
-    - Frames without annotated instance masks are excluded.
-    - 3D bounding boxes are transformed from the world coordinate system to each camera coordinate system.
+    ```bash
+    python tools/kitti_360/make_annotations.py \
+        --root_dirname ROOT_DIRNAME \
+        --num_workers NUM_WORKERS
+    ```
 
-```bash
-python tools/kitti_360/make_annotations.py \
-    --root_dirname ROOT_DIRNAME \
-    --num_workers NUM_WORKERS
-```
+    A directory named `annotations` will be created as follows.
+
+    ```bash
+    KITTI-360
+    ├── annotations         # per-frame annotations
+    ├── calibration         # camera parameters
+    ├── data_2d_raw         # perspective images
+    ├── data_2d_semantics   # instance masks
+    ├── data_3d_bboxes      # 3D bounding boxes
+    └── data_poses          # camera poses
+    ```
+
+    Note that the following frames are excluded.
+
+    - Frames without camera poses
+    - Frames without instance masks
 
 3. (Optional) Visualize the annotations to make sure the previous step has been completed successfully.
 
-```bash
-python tools/kitti_360/visualize_annotations.py \
-    --root_dirname ROOT_DIRNAME \
-    --out_dirname OUT_DIRNAME \
-    --num_workers NUM_WORKERS
-```
+    ```bash
+    python tools/kitti_360/visualize_annotations.py \
+        --root_dirname ROOT_DIRNAME \
+        --out_dirname OUT_DIRNAME \
+        --num_workers NUM_WORKERS
+    ```
 
-4. Sample source frames for each target frame.
+4. Sample target frames subject to optimization by VSRD along with the corresponding source frames.
 
-    - Please refer to the supplementary material for how to sample source frames.
-    - Target frames without at least 16 source frames are excluded.
-    - Target frames with the same set of instance IDs are grouped together.
-    - Only one target frame for each instance group is labeled by VSRD.
-    - The pseudo labels for each target frame are shared with all the frames in the same instance group.
+    ```bash
+    python tools/kitti_360/sample_annotations.py \
+        --root_dirname ROOT_DIRNAME \
+        --num_workers NUM_WORKERS
+    ```
 
-```bash
-python tools/kitti_360/sample_annotations.py \
-    --root_dirname ROOT_DIRNAME \
-    --num_workers NUM_WORKERS
-```
+    A directory named `filenames` will be created as follows.
+
+    ```bash
+    KITTI-360
+    ├── annotations         # per-frame annotations
+    ├── calibration         # camera parameters
+    ├── data_2d_raw         # perspective images
+    ├── data_2d_semantics   # instance masks
+    ├── data_3d_bboxes      # 3D bounding boxes
+    ├── data_poses          # camera poses
+    └── filenames           # sampled filenames
+    ```
+
+    Please refer to the supplementary material for how to sample source frames. For efficiency, we use not all but some frames as target frames for optimization by VSRD as follows:
+
+    1. Frames with the same set of instance IDs are grouped.
+    2. Only one frame is sampled as a target frame for each instance group.
+    3. Pseudo labels for each target frame are shared with all the frames in the same instance group.
+
+    We split all the sequences into training, validation, and test sets. The number of target frames subject to optimization by VSRD and the number of labeled frames are as follows:
+
+    | Sequence                   | Split      | # Target Frames | # Labeled Frames |
+    | -------------------------- | ---------- | --------------- | ---------------- |
+    | 2013_05_28_drive_0000_sync | Training   | 2562            | 9666             |
+    | 2013_05_28_drive_0002_sync | Training   | 748             | 7569             |
+    | 2013_05_28_drive_0003_sync | Validation | 32              | 238              |
+    | 2013_05_28_drive_0004_sync | Training   | 658             | 5608             |
+    | 2013_05_28_drive_0005_sync | Training   | 408             | 4103             |
+    | 2013_05_28_drive_0006_sync | Training   | 745             | 6982             |
+    | 2013_05_28_drive_0007_sync | Validation | 64              | 877              |
+    | 2013_05_28_drive_0009_sync | Training   | 1780            | 10250            |
+    | 2013_05_28_drive_0010_sync | Test       | 908             | 2459             |
 
 ## Multi-View 3D Auto-Labeling
 
@@ -105,34 +158,31 @@ torchrun \
 
 1. Make a JSON pseudo label file for each target frame from the checkpoint.
 
-    - The pseudo labels for each target frame are shared with all the frames in the same instance group.
-    - The pseudo labels for each target frame are transformed from the target camera coordinate system to the other camera coordinate systems.
-
-```bash
-python tools/kitti_360/make_predictions.py \
-    --root_dirname ROOT_DIRNAME \
-    --ckpt_dirname CKPT_DIRNAME \
-    --num_workers NUM_WORKERS
-```
+    ```bash
+    python tools/kitti_360/make_predictions.py \
+        --root_dirname ROOT_DIRNAME \
+        --ckpt_dirname CKPT_DIRNAME \
+        --num_workers NUM_WORKERS
+    ```
 
 2. (Optional) Visualize the pseudo labels to make sure the previous step has been completed successfully.
 
-```bash
-python tools/kitti_360/visualize_predictions.py \
-    --root_dirname ROOT_DIRNAME \
-    --ckpt_dirname CKPT_DIRNAME \
-    --out_dirname OUT_DIRNAME \
-    --num_workers NUM_WORKERS
-```
+    ```bash
+    python tools/kitti_360/visualize_predictions.py \
+        --root_dirname ROOT_DIRNAME \
+        --ckpt_dirname CKPT_DIRNAME \
+        --out_dirname OUT_DIRNAME \
+        --num_workers NUM_WORKERS
+    ```
 
-3. Convert the pseudo labels from our own JSON format to the KITTI format to make use of existing training frameworks like [MMDetection3D](https://github.com/open-mmlab/mmdetection3d).
+3. Convert the pseudo labels from our custom JSON format to the KITTI format to utilize existing training frameworks such as [MMDetection3D](https://github.com/open-mmlab/mmdetection3d).
 
-```bash
-python tools/kitti_360/convert_predictions.py \
-    --root_dirname ROOT_DIRNAME \
-    --ckpt_dirname CKPT_DIRNAME \
-    --num_workers NUM_WORKERS
-```
+    ```bash
+    python tools/kitti_360/convert_predictions.py \
+        --root_dirname ROOT_DIRNAME \
+        --ckpt_dirname CKPT_DIRNAME \
+        --num_workers NUM_WORKERS
+    ```
 
 ## License
 
@@ -142,9 +192,9 @@ VSRD is released under the MIT license.
 
 ```bibtex
 @article{liu2024vsrd,
-title={VSRD: Instance-Aware Volumetric Silhouette Rendering for Weakly Supervised 3D Object Detection},
-author={Liu, Zihua and Sakuma, Hiroki and Okutomi, Masatoshi},
-journal={arXiv preprint arXiv:2404.00149},
-year={2024}
+    title={VSRD: Instance-Aware Volumetric Silhouette Rendering for Weakly Supervised 3D Object Detection},
+    author={Liu, Zihua and Sakuma, Hiroki and Okutomi, Masatoshi},
+    journal={arXiv preprint arXiv:2404.00149},
+    year={2024}
 }
 ```
