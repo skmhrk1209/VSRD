@@ -23,19 +23,19 @@ pip install -e .
 
 ## Data Preparation
 
-1. Download the [KITTI-360](https://www.cvlibs.net/datasets/kitti-360/download.php) dataset.
+1. Download the following data from the [KITTI-360](https://www.cvlibs.net/datasets/kitti-360/download.php) dataset.
 
-    - Perspective images (124 GB)
-    - Instance masks (2.2 GB)
+    - Left perspective images (124 GB)
+    - Left instance masks (2.2 GB)
     - 3D bounding boxes (420 MB)
-    - Camera parameters(28 KB)
+    - Camera parameters (28 KB)
     - Camera poses (28 MB)
 
 2. Make a JSON annotation file for each frame.
 
-    - Frames without camera poses are excluded.
-    - Frames without instance masks are excluded.
-    - 3D bounding boxes are transformed from the world coordinate system to the camera coordinate systems.
+    - Frames without optimized camera poses are excluded.
+    - Frames without annotated instance masks are excluded.
+    - 3D bounding boxes are transformed from the world coordinate system to each camera coordinate system.
 
 ```bash
 python tools/kitti_360/make_annotations.py \
@@ -72,7 +72,7 @@ VSRD optimizes the 3D bounding boxes and residual signed distance fields (RDF) f
 
 ### Distributed Training
 
-Sampled target frames in each sequence are split and distributed across multiple processes, each of which processes the chunk independently. Note that gradients are not averaged between processes unlike general distributed training. Please run [main.py](scripts/main.py) with the corresponding configuration file for each sequence as follows:
+Sampled target frames in each sequence are split and distributed across multiple processes, each of which processes the chunk independently. It takes about 15 minutes on V100 to label each frame. Note that gradients are not averaged between processes unlike general distributed training. Please run [main.py](scripts/main.py) with the corresponding configuration file for each sequence as follows:
 
 - [Slurm](https://slurm.schedmd.com/documentation.html)
 

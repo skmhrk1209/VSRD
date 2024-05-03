@@ -9,6 +9,7 @@ import tqdm
 import torch
 import torch.nn as nn
 import torchvision
+import numpy as np
 import scipy as sp
 import pycocotools.mask
 
@@ -120,7 +121,7 @@ def make_predictions(
             ], dim=0)
 
             source_gt_masks = torch.cat([
-                torch.as_tensor(list(map(pycocotools.mask.decode, masks.values())), dtype=torch.float)
+                torch.as_tensor(np.stack(list(map(pycocotools.mask.decode, masks.values()))), dtype=torch.float)
                 for class_name, masks in source_annotation["masks"].items()
                 if class_name in class_names
             ], dim=0)

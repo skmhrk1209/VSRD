@@ -132,10 +132,10 @@ def convert_predictions(sequence, root_dirname, ckpt_dirname, class_names):
         ], dim=0)
 
         gt_masks = torch.cat([
-            torch.as_tensor([
+            torch.as_tensor(np.stack([
                 pycocotools.mask.decode(annotation["masks"][class_name][instance_id])
                 for instance_id in instance_ids
-            ], dtype=torch.float)
+            ]), dtype=torch.float)
             for class_name, instance_ids in instance_ids.items()
         ], dim=0)
 
