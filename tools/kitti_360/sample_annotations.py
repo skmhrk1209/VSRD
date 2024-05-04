@@ -38,7 +38,7 @@ def sample_annotations(
 
         def sample_source_frames(target_annotation_filename):
 
-            if not os.path.exists(target_annotation_filename): return [], []
+            if not os.path.exists(target_annotation_filename): return [], [], 0
 
             with open(target_annotation_filename) as file:
                 target_annotation = json.load(file)
@@ -53,18 +53,23 @@ def sample_annotations(
 
             target_instance_ids = sum([
                 [
-                    instance_id
-                    for instance_id, mask in masks.items()
-                    if check_mask(pycocotools.mask.decode(mask))
+                    (instance_id, np.sum(decoded_mask))
+                    for instance_id, encoded_mask in encoded_masks.items()
+                    if check_mask(decoded_mask := pycocotools.mask.decode(encoded_mask))
                 ]
-                for class_name, masks
+                for class_name, encoded_masks
                 in target_annotation["masks"].items()
                 if class_name in class_names
             ], [])
 
-            if not target_instance_ids: return [], []
+            if target_instance_ids:
+                target_instance_ids, target_mask_areas = zip(*target_instance_ids)
+                target_total_mask_area = np.sum(target_mask_areas)
+
+            if not target_instance_ids: return [], [], 0
 
             source_relative_indices = []
+            total_mask_area = target_total_mask_area
 
             target_frame_index = int(os.path.splitext(os.path.basename(target_annotation_filename))[0])
 
@@ -83,18 +88,23 @@ def sample_annotations(
 
                 source_instance_ids = sum([
                     [
-                        instance_id
-                        for instance_id, mask in masks.items()
-                        if check_mask(pycocotools.mask.decode(mask))
+                        (instance_id, np.sum(decoded_mask))
+                        for instance_id, encoded_mask in encoded_masks.items()
+                        if check_mask(decoded_mask := pycocotools.mask.decode(encoded_mask))
                     ]
-                    for class_name, masks
+                    for class_name, encoded_masks
                     in source_annotation["masks"].items()
                     if class_name in class_names
                 ], [])
 
+                if source_instance_ids:
+                    source_instance_ids, source_mask_areas = zip(*source_instance_ids)
+                    source_total_mask_area = np.sum(source_mask_areas)
+
                 if len(set(target_instance_ids) & set(source_instance_ids)) / len(target_instance_ids) < num_instance_ratio: break
 
                 source_relative_indices.append(source_relative_index)
+                total_mask_area += source_total_mask_area
 
             for source_relative_index in itertools.count(1):
 
@@ -111,26 +121,31 @@ def sample_annotations(
 
                 source_instance_ids = sum([
                     [
-                        instance_id
-                        for instance_id, mask in masks.items()
-                        if check_mask(pycocotools.mask.decode(mask))
+                        (instance_id, np.sum(decoded_mask))
+                        for instance_id, encoded_mask in encoded_masks.items()
+                        if check_mask(decoded_mask := pycocotools.mask.decode(encoded_mask))
                     ]
-                    for class_name, masks
+                    for class_name, encoded_masks
                     in source_annotation["masks"].items()
                     if class_name in class_names
                 ], [])
 
+                if source_instance_ids:
+                    source_instance_ids, source_mask_areas = zip(*source_instance_ids)
+                    source_total_mask_area = np.sum(source_mask_areas)
+
                 if len(set(target_instance_ids) & set(source_instance_ids)) / len(target_instance_ids) < num_instance_ratio: break
 
                 source_relative_indices.append(-source_relative_index)
+                total_mask_area += source_total_mask_area
 
-            return sorted(target_instance_ids), sorted(source_relative_indices)
+            return sorted(target_instance_ids), sorted(source_relative_indices), total_mask_area
 
         target_annotation_filename = target_image_filename.replace("data_2d_raw", "annotations").replace(".png", ".json")
-        target_instance_ids, source_relative_indices = sample_source_frames(target_annotation_filename)
+        target_instance_ids, source_relative_indices, total_mask_area = sample_source_frames(target_annotation_filename)
 
-        if len(source_relative_indices) >= num_source_frames:
-            grouped_image_filenames[tuple(target_instance_ids)].append((target_image_filename, source_relative_indices))
+        if target_instance_ids:
+            grouped_image_filenames[tuple(target_instance_ids)].append((target_image_filename, source_relative_indices, total_mask_area))
 
     grouped_image_filename = os.path.join(
         root_dirname,
@@ -163,11 +178,11 @@ def sample_annotations(
 
             for target_instance_ids, grouped_image_filenames in grouped_image_filenames.items():
 
-                grouped_image_filenames = sorted(grouped_image_filenames, key=lambda item: int(os.path.splitext(os.path.basename(item[0]))[0]))
-                target_image_filename, source_relative_indices = grouped_image_filenames[len(grouped_image_filenames) // 2]
+                target_image_filename, source_relative_indices, _ = max(grouped_image_filenames, key=lambda item: (len(item[1]), item[2]))
 
-                grouped_image_file.write(f"{','.join(target_instance_ids)} {','.join(map(operator.itemgetter(0), grouped_image_filenames))}\n")
-                sampled_image_file.write(f"{','.join(target_instance_ids)} {target_image_filename} {','.join(map(str, source_relative_indices))}\n")
+                if len(source_relative_indices) >= num_source_frames:
+                    grouped_image_file.write(f"{','.join(target_instance_ids)} {','.join(map(operator.itemgetter(0), grouped_image_filenames))}\n")
+                    sampled_image_file.write(f"{','.join(target_instance_ids)} {target_image_filename} {','.join(map(str, source_relative_indices))}\n")
 
 def main(args):
 
