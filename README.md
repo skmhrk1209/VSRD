@@ -11,15 +11,15 @@ https://github.com/skmhrk1209/VSRD/assets/29158616/fc64e7dd-2bb2-4719-b662-cb1e1
 
 1. Setup the conda environment.
 
-```bash
-conda env create -f environment.yaml
-```
+    ```bash
+    conda env create -f environment.yaml
+    ```
 
 2. Install this repository.
 
-```bash
-pip install -e .
-```
+    ```bash
+    pip install -e .
+    ```
 
 ## Data Preparation
 
@@ -109,14 +109,14 @@ pip install -e .
 
     | Sequence                   | Split      | # Target Frames | # Labeled Frames |
     | :------------------------- | :--------- | --------------: | ---------------: |
-    | 2013_05_28_drive_0000_sync | Training   | 2562            | 9666             |
-    | 2013_05_28_drive_0002_sync | Training   | 748             | 7569             |
+    | 2013_05_28_drive_0000_sync | Training   | 2562            | 9684             |
+    | 2013_05_28_drive_0002_sync | Training   | 748             | 7689             |
     | 2013_05_28_drive_0003_sync | Validation | 32              | 238              |
-    | 2013_05_28_drive_0004_sync | Training   | 658             | 5608             |
-    | 2013_05_28_drive_0005_sync | Training   | 408             | 4103             |
-    | 2013_05_28_drive_0006_sync | Training   | 745             | 6982             |
+    | 2013_05_28_drive_0004_sync | Training   | 658             | 5636             |
+    | 2013_05_28_drive_0005_sync | Training   | 408             | 4202             |
+    | 2013_05_28_drive_0006_sync | Training   | 745             | 7077             |
     | 2013_05_28_drive_0007_sync | Validation | 64              | 877              |
-    | 2013_05_28_drive_0009_sync | Training   | 1780            | 10250            |
+    | 2013_05_28_drive_0009_sync | Training   | 1780            | 10283            |
     | 2013_05_28_drive_0010_sync | Test       | 908             | 2459             |
 
 ## Multi-View 3D Auto-Labeling
@@ -129,30 +129,30 @@ Sampled target frames in each sequence are split and distributed across multiple
 
 - [Slurm](https://slurm.schedmd.com/documentation.html)
 
-```bash
-python -m vsrd.distributed.slurm.launch \
-    --partition PARTITION \
-    --num_nodes NUM_NODES \
-    --num_gpus NUM_GPUS \
-    scripts/main.py \
-        --launcher slurm \
-        --config CONFIG \
-        --train
-```
+    ```bash
+    python -m vsrd.distributed.slurm.launch \
+        --partition PARTITION \
+        --num_nodes NUM_NODES \
+        --num_gpus NUM_GPUS \
+        scripts/main.py \
+            --launcher slurm \
+            --config CONFIG \
+            --train
+    ```
 
 - [Torchrun](https://pytorch.org/docs/stable/elastic/run.html)
 
-```bash
-torchrun \
-    --rdzv_backend c10d \
-    --rdzv_endpoint HOST_NODE_ADDR \
-    --nnodes NUM_NODES \
-    --nproc_per_node NUM_GPUS \
-    scripts/main.py \
-        --launcher torchrun \
-        --config CONFIG \
-        --train
-```
+    ```bash
+    torchrun \
+        --rdzv_backend c10d \
+        --rdzv_endpoint HOST_NODE_ADDR \
+        --nnodes NUM_NODES \
+        --nproc_per_node NUM_GPUS \
+        scripts/main.py \
+            --launcher torchrun \
+            --config CONFIG \
+            --train
+    ```
 
 ## Pseudo Label Preparation
 
