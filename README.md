@@ -11,15 +11,15 @@ https://github.com/skmhrk1209/VSRD/assets/29158616/fc64e7dd-2bb2-4719-b662-cb1e1
 
 1. Setup the conda environment.
 
-```bash
-conda env create -f environment.yaml
-```
+    ```bash
+    conda env create -f environment.yaml
+    ```
 
 2. Install this repository.
 
-```bash
-pip install -e .
-```
+    ```bash
+    pip install -e .
+    ```
 
 ## Data Preparation
 
@@ -129,30 +129,30 @@ Sampled target frames in each sequence are split and distributed across multiple
 
 - [Slurm](https://slurm.schedmd.com/documentation.html)
 
-```bash
-python -m vsrd.distributed.slurm.launch \
-    --partition PARTITION \
-    --num_nodes NUM_NODES \
-    --num_gpus NUM_GPUS \
-    scripts/main.py \
-        --launcher slurm \
-        --config CONFIG \
-        --train
-```
+    ```bash
+    python -m vsrd.distributed.slurm.launch \
+        --partition PARTITION \
+        --num_nodes NUM_NODES \
+        --num_gpus NUM_GPUS \
+        scripts/main.py \
+            --launcher slurm \
+            --config CONFIG \
+            --train
+    ```
 
 - [Torchrun](https://pytorch.org/docs/stable/elastic/run.html)
 
-```bash
-torchrun \
-    --rdzv_backend c10d \
-    --rdzv_endpoint HOST_NODE_ADDR \
-    --nnodes NUM_NODES \
-    --nproc_per_node NUM_GPUS \
-    scripts/main.py \
-        --launcher torchrun \
-        --config CONFIG \
-        --train
-```
+    ```bash
+    torchrun \
+        --rdzv_backend c10d \
+        --rdzv_endpoint HOST_NODE_ADDR \
+        --nnodes NUM_NODES \
+        --nproc_per_node NUM_GPUS \
+        scripts/main.py \
+            --launcher torchrun \
+            --config CONFIG \
+            --train
+    ```
 
 ## Pseudo Label Preparation
 
