@@ -109,14 +109,14 @@ pip install -e .
 
     | Sequence                   | Split      | # Target Frames | # Labeled Frames |
     | :------------------------- | :--------- | --------------: | ---------------: |
-    | 2013_05_28_drive_0000_sync | Training   | 2562            | 9666             |
-    | 2013_05_28_drive_0002_sync | Training   | 748             | 7569             |
+    | 2013_05_28_drive_0000_sync | Training   | 2562            | 9684             |
+    | 2013_05_28_drive_0002_sync | Training   | 748             | 7689             |
     | 2013_05_28_drive_0003_sync | Validation | 32              | 238              |
-    | 2013_05_28_drive_0004_sync | Training   | 658             | 5608             |
-    | 2013_05_28_drive_0005_sync | Training   | 408             | 4103             |
-    | 2013_05_28_drive_0006_sync | Training   | 745             | 6982             |
+    | 2013_05_28_drive_0004_sync | Training   | 658             | 5636             |
+    | 2013_05_28_drive_0005_sync | Training   | 408             | 4202             |
+    | 2013_05_28_drive_0006_sync | Training   | 745             | 7077             |
     | 2013_05_28_drive_0007_sync | Validation | 64              | 877              |
-    | 2013_05_28_drive_0009_sync | Training   | 1780            | 10250            |
+    | 2013_05_28_drive_0009_sync | Training   | 1780            | 10283            |
     | 2013_05_28_drive_0010_sync | Test       | 908             | 2459             |
 
 ## Multi-View 3D Auto-Labeling
